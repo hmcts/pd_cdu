@@ -1,0 +1,101 @@
+/*#############################################################################
+##                                ~~ Table CSS ~~                            ##
+##                         Author: Sean Bulley (2015)                        ##
+#############################################################################*/
+
+.outerScroller {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background-color: transparent;
+}
+
+.scrollArea {
+    position: absolute;
+    width: 100%
+}
+
+.oddRow, .evenRow {
+    vertical-align: top;
+    position: relative;
+}
+
+.oddRow {
+    background-color: #EEEEEE;
+}
+
+.evenRow {
+    background-color: #DDDDDD;
+}
+
+.results {
+    visibility: hidden;
+}
+
+.results td, .non-scrolling-results td, .case-progress td {
+    font-size: 3vmin;
+    border-top: 2px white solid;
+    font-weight: bold;
+}
+
+
+.results, .non-scrolling-results, .case-progress {
+    width: 100%;
+}
+
+.non-scrolling-results{
+    margin-bottom: 15px;
+}
+
+/* Results Header */
+.results-header-div {
+    position: relative;
+    width: 100%;
+    background-color: #FFFFFF;
+}
+
+.column-headers td{
+    font-size: 3vmin;
+    font-weight: bold;
+    color: white;
+    background-color: #005ea5;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.column-header {
+    font-size: 3vmin;
+    font-weight: bold;
+    color: white;
+    background-color: #005ea5;
+    white-space: nowrap;
+    padding-right: 10px;
+}
+
+.column-body {
+    font-size: 3vmin;
+    font-weight: bold;
+    color: black;
+    background-color: #EEEEEE;
+    width: 100%;
+}
+
+.moved-highlight {
+    font: 20px;
+    font-weight: bold;
+    color: #0000FF;
+}
+
+td {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+/* These classes are to be applied to TDs to size them to the minimum width possible without textwrapping */
+.noWrap {
+    white-space: nowrap;
+}
+
+.highlighted {
+    color: #005EA5;
+}

@@ -37,28 +37,31 @@
                         </xsl:attribute>
                     </meta>
                 </xsl:if>
-				<meta http-equiv="refresh" content="7200; index.php"></meta>
+				
 				<!-- Setting page rotation speed to value in XML -->
+				<meta http-equiv="refresh" content="7200; index.php"></meta>
 				<script>
 					var nextPageDelay = <xsl:value-of select="/COURT/CDU/REFRESH" />
 				</script>
-				<!-- Attaching Javascript -->
+				
+                <!-- Attaching Javascript -->
                 <script type="text/javascript" src="display_documentNEW.js"></script>
+				
                 <!-- Attaching Stylesheets -->
                 <link rel="stylesheet" type="text/css">
-                <xsl:attribute name="href">
-                    <xsl:text>css/new/general.css</xsl:text>
-                </xsl:attribute>
-                </link>
-                <link rel="stylesheet" type="text/css">
-                <xsl:attribute name="href">
-                    <xsl:text>css/new/table.css</xsl:text>
-                </xsl:attribute>
+					<xsl:attribute name="href">
+						<xsl:text>css/new/general.css</xsl:text>
+					</xsl:attribute>
+				</link>
+				<link rel="stylesheet" type="text/css">
+					<xsl:attribute name="href">
+						<xsl:text>css/new/table.css</xsl:text>
+					</xsl:attribute>
 				</link>
             </head>
             <body>
-			<!-- If visible, blacks out screen and shows power saving message -->
-			<div id="brightnessWindow">
+				<!-- If visible, blacks out screen and shows power saving message -->
+				<div id="brightnessWindow">
 				<div id="powerSavingMessage">
 					<xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
                         <span>- Power Saving Mode Enabled -</span>
@@ -67,22 +70,21 @@
                         <span>- Power Arbed Modd Galluogwyd -</span>
                     </xsl:if>
 				</div>
-			</div>
-			<xsl:if test="COURT/CDU/POWER-SAVING = 'ENABLED'">
-				<script>
-					document.getElementById("brightnessWindow").style.visibility = "visible";
-				</script>
-			</xsl:if>
-			
-                <!-- Div Containing Notification Bar -->
-                <div class="notificationBar" id="notificationBar">
-                    <marquee>
-                        <div id="notificationContents">
-                            <xsl:value-of select="/COURT/CDU/NOTICE" />
-                        </div>
-                    </marquee>
-                </div>
-                <!-- Div Containing Notification Bar -->
+				</div>
+				<xsl:if test="COURT/CDU/POWER-SAVING = 'ENABLED'">
+					<script>
+						document.getElementById("brightnessWindow").style.visibility = "visible";
+					</script>
+				</xsl:if>
+					
+				<!-- Div Containing Notification Bar -->				
+				<div class="notificationBar" id="notificationBar">
+					<marquee>
+						<div id="notificationContents">
+							<xsl:value-of select="/COURT/CDU/NOTICE" />
+						</div>
+					</marquee>
+				</div>
                 <div class="reportingRestrictions">
                     <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
                         * Reporting Restrictions Apply; Please see court manager for more details 
@@ -92,41 +94,47 @@
                     </xsl:if>
                 </div>
 				
-
                 <!-- Div Containing Time Display Within Notification Bar -->
                 <div class="timeDisplay">
                     <span class="timeText"  id="time"></span>
                 </div>
+				
                 <!-- Div Containing Page Number Within Notifivation Bar -->
-                <div class="pageNumberDisplay"><span id="pageInfo" class="pageNumberText">1 of 1</span></div>
+                <div class="pageNumberDisplay">
+					<span id="pageInfo" class="pageNumberText">1 of 1</span>
+				</div>
+				
                 <!-- Contains Data for Page x of y display -->
                 <form name="displayform">
                     <input type="hidden" name="listTitleText" value="List" />
-                    <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
-                        <input type="hidden" name="ofTitleText" value="of" />
-                    </xsl:if>
-                    <xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
-                        <input type="hidden" name="ofTitleText" value="o" />
-                    </xsl:if>
-                    <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
-                        <input type="hidden" name="pageTitleText" value="Page" />
-                    </xsl:if>
-                    <xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
-                        <input type="hidden" name="pageTitleText" value="Dudalen" />
-                    </xsl:if>
-                    <input type="hidden" name="macAddress" value="Page">
-                    <xsl:attribute name="value">
-                        <xsl:value-of select="/COURT/CDU/MAC-ADDR"/>
-                    </xsl:attribute>
+						<xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
+							<input type="hidden" name="ofTitleText" value="of" />
+						</xsl:if>
+						<xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
+							<input type="hidden" name="ofTitleText" value="o" />
+						</xsl:if>                    <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
+							<input type="hidden" name="pageTitleText" value="Page" />
+						</xsl:if>
+						<xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
+							<input type="hidden" name="pageTitleText" value="Dudalen" />
+						</xsl:if>
+						<input type="hidden" name="macAddress" value="Page">
+						<xsl:attribute name="value">
+							<xsl:value-of select="/COURT/CDU/MAC-ADDR"/>
+						</xsl:attribute>
                     </input>
                 </form>
                 <!-- Layout Determination for Page -->
                 <div id="heading" class="headerContainer">
                     <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
-                        <span class="headerLogo"><img src="images/MoJLogo.png" alt="MoJ Logo" style="width: 100%;"></img></span>
+                        <span class="headerLogo">
+							<img src="images/MoJLogo.png" alt="MoJ Logo" style="width: 100%;"></img>
+						</span>
                     </xsl:if>
                     <xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
-                        <span class="headerLogo"><img src="images/MoJLogoWelsh.png" alt="MoJ Logo" style="width: 100%;"></img></span>
+                        <span class="headerLogo">
+							<img src="images/MoJLogoWelsh.png" alt="MoJ Logo" style="width: 100%;"></img>
+						</span>
                     </xsl:if>
                     <span class="headerText">
 						<xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
@@ -137,17 +145,18 @@
 						</xsl:if>
                     </span>
                 </div>
+				
                 <div id="pageTitle" class="title">
-				<span>
-                        <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
-                            Jury Current Status (
-                        </xsl:if>
-                        <xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">                         
-                            Statws Gyfredol - Rheithgor (
-                        </xsl:if>
-                    <xsl:value-of select="/COURT/CDU/LOCATION"/>
-                    )
-				</span>
+					<span>
+						<xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
+							Daily List (
+						</xsl:if>
+						<xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
+							Rhestr Ddyddiol (
+						</xsl:if>
+						<xsl:value-of select="/COURT/CDU/LOCATION"/>
+						)
+					</span>
 					<div class="lastUpdated bigtext-exempt"><span id="lastUpdated">
                         <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
                             Last Updated: 
@@ -156,7 +165,7 @@
                             Diweddarwyd Ddiwethaf:
                         </xsl:if>
 
-                    <xsl:value-of select="/COURT/PAGE/LAST-UPDATED" /></span> | 
+						<xsl:value-of select="/COURT/PAGE/LAST-UPDATED" /></span> | 
                         
                         <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
                             Version: 
@@ -165,34 +174,34 @@
                             Fersiwn:
                         </xsl:if>
 
-                    <xsl:value-of select="/COURT/CLIENT/VERSION" /> / <xsl:value-of select="/COURT/CDU/VERSION" />
-                </div>
+						<xsl:value-of select="/COURT/CLIENT/VERSION" /> / <xsl:value-of select="/COURT/CDU/VERSION" />
+					</div>
                 </div>
                 <div id="bodyArea" class="body-area">
                     <table id="resultTable" class="results" border="0" cellpadding="3" cellspacing="0">
                         <thead id="tableHeader">
                            <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
                             <tr class="column-headers">
-                                <td width="10%">Court</td>
-                                <td width="20%">Name/Case No.</td>
-                                <td width="20%">Judge</td>
-                                <td width="40%">Hearing Type</td>
-                                <td width="10%">Not Before</td>
+                                <td class="noWrap">Court</td>
+                                <td>Judge</td>
+                                <td>Name/Case No.</td>
+                                <td>Type</td>
+                                <td>Not Before</td>
                             </tr>
                             </xsl:if>
                             <xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
                             <tr class="column-headers">
-                                <td width="10%">Llys</td>
-                                <td width="20%">Enw/Rhif yr achos</td>
-                                <td width="20%">Barnwr</td>
-                                <td width="40%">Math o wrandawiad</td>
-                                <td width="10%">Ddim Cyn</td>
+                                <td class="noWrap">Llys</td>
+                                <td>Barnwr</td>
+                                <td>Enw/Rhif yr achos</td>
+                                <td>Math o wrandawiad</td>
+                                <td>Ddim Cyn</td>
                             </tr>
                             </xsl:if>
                         </thead>
                         <tbody id="resultsBody">
                             <xsl:for-each select="/COURT/TABLE/COURTCASE">
-                                <xsl:variable name="myRowClass">
+                                <xsl:variable name="myRowClass" >
                                     <xsl:choose>
                                         <xsl:when test="position() mod 2 = 0">
                                             <xsl:text>oddRow</xsl:text>
@@ -203,9 +212,8 @@
                                     </xsl:choose>
                                 </xsl:variable>
                                 <tr class="{$myRowClass}">
-                                    <td class="court-room-name">
+                                    <td class="noWrap">
                                         <div style="word-wrap:break-word;overflow:auto" class="court_room_name_restricted_size">
-                                            
 											<!-- <xsl:value-of select="ROOM" /> -->
 											  <xsl:variable name="COURTROOM">
 												<xsl:call-template name="string-replace-all">
@@ -221,28 +229,32 @@
 											  </xsl:if>
                                         </div>
                                     </td>
-                                    <td class="defendant-and-case-number">
+                                    <td>
+                                        <div>
+                                            <xsl:value-of select="NAME"/>
+                                        </div>
+                                    </td>
+                                    <td>
                                         <xsl:choose>
                                             <xsl:when test="CASETITLE">
-                                                <span class="case-title">
-                                                    <xsl:value-of select="CASETITLE"/> / 
+                                                <span>
+                                                    <xsl:value-of select="CASETITLE"/>
                                                 </span>
-                                                
-                                                <span class="case-number">
+                                                / 
+                                                <span>
                                                     <xsl:value-of select="CASENO"/>
                                                 </span>
                                             </xsl:when>
                                             <xsl:otherwise>
-                                                <span class="defendant-names">
+                                                <span>
                                                     <xsl:for-each select="DEFENDANTS/DEFENDANT">
-                                                        <div align= 'left' style="word-wrap:break-word;overflow:auto" class="defendant-name-restricted-size-250">
+                                                        <div style="word-wrap:break-word;overflow:auto">
                                                             <xsl:value-of select="."/>
                                                         </div>
                                                     </xsl:for-each>
-													/
                                                 </span>
-												
-                                                <span class="case-number">
+                                                / 
+                                                <span>
                                                     <xsl:value-of select="CASENO"/>
                                                 </span>
                                             </xsl:otherwise>
@@ -251,16 +263,12 @@
                                             <xsl:text>*</xsl:text>
                                         </xsl:if>
                                     </td>
-										<td class="judge">
-										<span><xsl:value-of select="NAME"/></span>
-                                        </td>
-                                        <td class="hearing-progress">
-										<span><xsl:value-of select="STATUS"/></span>
-                                        </td>
-                                    <td class="not-before-time">
+                                    <td>
+                                        <xsl:value-of select="TYPE"/>
+                                    </td>
+                                    <td>
                                         <xsl:value-of select="NOTBEFORE"/>
                                     </td>
-                                    
                                 </tr>
                             </xsl:for-each>
                         </tbody>

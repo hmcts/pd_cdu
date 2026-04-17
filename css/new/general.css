@@ -1,0 +1,147 @@
+/*#############################################################################
+##                              ~~ General CSS ~~                            ##
+##                         Author: Sean Bulley (2015)                        ##
+#############################################################################*/
+
+
+@import  "notifications.css";
+
+* {
+	/* Setting Universal Font*/
+    font-family: Arial, sans-serif;
+}
+
+.body-area {
+/* Treat as body */
+    margin: 0 4%;
+}
+
+body {
+/* Fitting page to entire screen */
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 0;
+    overflow: hidden;
+}
+
+
+/*###############################################################*/
+/*                        Powersaving Mode                       */
+/*###############################################################*/
+/* Fullscreen DIV that is able to acts as a "window" controlling the brightness of the display */
+#brightnessWindow {
+	/* Setting window to be high above all other elements, to show something above this will require setting that elements z-index above this one */
+	z-index: 1000001;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,1);
+	visibility: hidden;
+}
+
+#powerSavingMessage {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 6%;
+    z-index: 1000002;
+    font-size: 4vh;
+    color: #909090;
+    font-weight: 700;
+    line-height: 1.5;
+    background: #e2e2e2;
+	text-align: center;
+	background-color: #282828;
+}
+
+
+/*###############################################################*/
+/*                           Page Header                         */
+/*###############################################################*/
+.headerContainer {
+/* Container at top of page for courtname */
+    display: table;
+    font-weight: 700;
+    height: 12%;
+    width: 100%;
+    background: black;
+    padding-left: 4%;
+}
+
+.headerText {
+/* Span for text within header */
+	width: 80%;
+	text-align: left;
+    color: #fff;
+    display: table-cell;
+    vertical-align: middle;
+	font-size: 5vmin;
+	padding-left: 3%;
+}
+.headerLogo {
+/* Span for logo within header */
+	vertical-align: middle;
+	width: 20%;
+	left: 0;
+	display: table-cell;
+}
+
+/*###############################################################*/
+/*                            Page Title                         */
+/*###############################################################*/
+.title {
+/* Displays Screen Purpose at top */
+    margin: 1% 4%;
+    font-size: 6vmin;
+    font-weight: 700;
+    letter-spacing: 0;
+    height: 9%;
+    text-align: center;
+}
+
+/*###############################################################*/
+/*                    No Information To Display                  */
+/*###############################################################*/
+.noInformationToDisplayContainer, .noInformationContainer, .badInformationContainer {
+	display: table;
+	height: 50%;
+	width: 80%;
+	position: absolute;
+	top: 30%;
+	left: 10%;
+}
+
+.noInformationToDisplayContainer {
+	/* RED: No connection to host */
+	background-color: #AF1324;
+}
+
+.noInformationContainer {
+	/* BLUE: Working fine, just no information to display */
+	background-color: #005ea5;
+}
+
+.badInformationContainer {
+	/* BLACK: Connection, but no valid data */
+	background-color: black;
+}
+
+.noInformationToDisplayText {
+	vertical-align: middle;
+	font-weight: bold;
+	display: table-cell;
+	font-size: 3vw;
+	color: white;
+	text-align: center;
+}
+
+/*###############################################################*/
+/*                      Variable Storing Form                    */
+/*###############################################################*/
+/* Hiding Form that is used to hold values, should never be shown */
+form[name="displayform"] {
+	visibility: hidden;
+	margin: 0em;
+	display: block;
+}
