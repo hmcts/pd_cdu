@@ -23,6 +23,8 @@ define("LAST_RUN_FILE", "timestampMonitorFile");
 
 define("INI_TIMEOUT", "timeout");
 
+define("HTTP_TESTFILE", "testFile");
+
 
 $iniValues = parse_ini_file(INI_FILE, FALSE, INI_SCANNER_RAW);
 $proxyUrl = $iniValues[INI_USE_DB];
@@ -84,7 +86,24 @@ if (isset($macAddress) && strlen($macAddress) > 0) {
 	
 	// fetch the XML from localproxy - the default timeout is 60 seconds; defaulting to .
 	$ctx = stream_context_create(array('http' => array('timeout' => $httpTimeout, 'method' => "GET")));
-	$xmlStr = file_get_contents($httpUrl, false, $ctx);
+	if (isset($_GET[HTTP_TESTFILE])) {
+		$testFile = basename($_GET[HTTP_TESTFILE]);  // sanitize input
+		$testFilePath = __DIR__ . "/testData/" . $testFile;
+
+		if (file_exists($testFilePath)) {
+			writeInfoToSysLog("Using test XML file: $testFile");
+			$xmlStr = file_get_contents($testFilePath);
+		} else {
+			writeErrorToSysLog("Requested test file not found: $testFile");
+			$errorReason = "INVALID_TEST_FILE";
+			$xmlStr = false;
+		}
+	} else {
+		// Default: fetch from the configured proxy
+		$ctx = stream_context_create(array('http' => array('timeout' => $httpTimeout, 'method' => "GET")));
+		$xmlStr = file_get_contents($httpUrl, false, $ctx);
+	}
+
 	//$xmlStr = file_get_contents($httpUrl);
 	//print($xmlStr);
 	if ($xmlStr === FALSE) {

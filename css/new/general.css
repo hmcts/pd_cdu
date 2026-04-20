@@ -145,3 +145,17 @@ form[name="displayform"] {
 	margin: 0em;
 	display: block;
 }
+
+
+/*###############################################################*/
+/*                        Fade-in Smoothing                      */
+/*###############################################################*/
+
+body {
+	opacity: 0;
+	transition: opacity 0.25s ease-in-out;
+}
+
+body.ready {
+	opacity: 1;
+}

@@ -80,10 +80,16 @@ if (isset($macAddress) && strlen($macAddress) > 0) {
 	
 	// fetch the XML from localproxy
 	$xmlStr = file_get_contents($httpUrl);
+	file_put_contents('/tmp/debug_input_xml.xml', $xmlStr);
+
 	//print($xmlStr);
-	if ($xmlStr === FALSE) {
-		$errorReason = "REMOTE_FETCH_FAILED";
+	if ($xmlStr === FALSE || strlen($xmlStr) === 0) {
+		file_put_contents('/tmp/debug_failure.log', "Failed to fetch XML from proxy: $httpUrl");
+		http_response_code(503);
+		exit;
 	}
+
+	file_put_contents('/tmp/debug_input_xml.xml', $xmlStr);
 	
 	// now, extract the name of the page and the XSL stylesheet to apply
 	if (strpos($xmlStr, '/COURT') > 0) {
@@ -172,10 +178,35 @@ if (isset($macAddress) && strlen($macAddress) > 0) {
 					
 					// now transform the XML to HTML
 					$xslt = new XSLTProcessor();
+					$xslRaw = file_get_contents($myXSLt);
+					file_put_contents('/tmp/debug_xslt_content.xsl', $xslRaw);
+					$xslObj = new SimpleXMLElement($xslRaw);
+
+					if (!$xslObj) {
+						file_put_contents('/tmp/debug_failure.log', "Failed to parse XSL: $myXSLt");
+						http_response_code(500);
+						exit;
+					}
+					$xslt->importStylesheet($xslObj);
+					$transformedOutput = $xslt->transformToXml($xmlObj);
+
+					if (!$transformedOutput) {
+						file_put_contents('/tmp/debug_failure.log', "XSL transformation failed.");
+						http_response_code(500);
+						exit;
+					}
+					if (!file_exists($myXSLt)) {
+						file_put_contents("/tmp/refresh_xslt_error.log", "Missing XSLT: $myXSLt\n");
+						http_response_code(500);
+						exit;
+					}
+
+					file_put_contents('/tmp/debug_xslt_path.txt', $myXSLt);
 					$xslObj = new SimpleXMLElement(file_get_contents($myXSLt));
 					if (isset($xslObj)) {
 						$xslt->importStylesheet($xslObj);
 						$transformedOutput = $xslt->transformToXml($xmlObj);
+						file_put_contents("/tmp/refresh_output.html", $transformedOutput);
 						
 						if (FALSE !== $transformedOutput) {
 							echo $transformedOutput;

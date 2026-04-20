@@ -156,10 +156,15 @@ function getUpdatedContent(){
     if (typeof myCurrentPageIndex != 'undefined'){
         log("Refreshing data table contents: " + "data_refresh.php?macAddr=" + myMacAddress + "&currentPageIndex=" + myCurrentPageIndex);
         $( "#hiddenContainer" ).load("data_refresh.php?macAddr=" + myMacAddress + "&currentPageIndex=" + myCurrentPageIndex, function(response, status, xhr) {
+            if (status === "success") {
+                console.log("REFRESH DATA RECEIVED:\n", response);
+                document.getElementById("resultsBody").innerHTML =
+                    document.getElementById("hiddenContainer").innerHTML;
+            }
             // if an error in getting the results 
-            if (status == "error") {
+            else if (status == "error") {
                 // force a full browser reset
-                window.location.reload();
+                //window.location.reload();
             } else {
                 return (true);
             }
@@ -169,7 +174,7 @@ function getUpdatedContent(){
         $( "#hiddenContainer" ).load("data_refresh.php?macAddr=" + myMacAddress, function(response, status, xhr) {
             if (status == "error") {
                 // force a full browser reset
-                window.location.reload();
+                //window.location.reload();
             } else {
                 return (true);
             }
@@ -380,4 +385,7 @@ function initialise() {
 /*#############################################################################
 ##                            When Program Starts                            ##
 #############################################################################*/
-window.onload = initialise;
+window.onload = function() {
+	initialise();
+	document.body.classList.add("ready");
+};
