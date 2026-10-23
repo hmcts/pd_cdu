@@ -189,8 +189,9 @@ def handle(request, settings=None, fetcher=fetch, transformer=transform, root=RO
         try:
             settings = read_settings(os.environ.get('XHIBIT_CDU_CONFIG', os.path.join(root, 'cdu.ini')))
         except (OSError, ValueError, configparser.Error) as exc:
-            # The verified index.php is a static page and loads without configuration.
-            if route != 'index.php':
+            # The verified index.php is static and screenshot.php needed no configuration;
+            # every setting they use has a default.
+            if route not in ('index.php', 'screenshot.php'):
                 raise
             log('CDU_CONFIG_FAILURE ' + type(exc).__name__)
             settings = {}
@@ -208,8 +209,15 @@ def handle(request, settings=None, fetcher=fetch, transformer=transform, root=RO
     if 'currentPageIndex' in request.query:
         url += '&currentPageIndex=' + urllib.parse.quote_plus(request.query['currentPageIndex'])
     try:
+        timeout = float(settings['timeout'])
+    except (KeyError, TypeError, ValueError):
+        # Same holding page and no fetch, as before, but log the configuration fault
+        # instead of an upstream INVALID_SERVER_RESPONSE.
+        log('INVALID_CONFIG timeout - ' + url, 'index.php')
+        return Response(holding_page(mac, 'INVALID_SERVER_RESPONSE', root), content_type=content_type)
+    try:
         try:
-            data = fetcher(url, timeout=float(settings['timeout']))
+            data = fetcher(url, timeout=timeout)
         except Exception:
             # PHP str_replace coerces FALSE to "" BEFORE its strict FALSE check.
             data = b''
