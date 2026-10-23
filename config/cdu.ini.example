@@ -1,0 +1,15 @@
+; Review target values; external root-owned 0640 config, never package secrets.
+fetch = http://192.168.1.254/proxy/xhibit_proxy.php
+timeout = 3
+; Preserve the actual configured interface/command from the target CDU.
+macAddressCmd = cat /sys/class/net/eth0/address
+lastUpdatedLocation = /var/log/lastupdated.txt
+timestampMonitorFile = /var/log/lastRun.txt
+xsltproc = /usr/bin/xsltproc
+transformTimeout = 60
+macCommandTimeout = 60
+sudo = /usr/bin/sudo
+screenshotScript = /home/xhibit/bin/screencapture.sh
+captureHelper = /usr/local/libexec/xhibit-capture
+screenshotTimeout = 60
+defaultContentType = "text/html; charset=UTF-8"

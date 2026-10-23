@@ -1,0 +1,66 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<!-- FUNCTION TO LOAD CONTENT INTO PARENTCONTENT DIV -->
+		<script>
+			var timesNotResponding = 0;
+			function nextPage(newUrl){
+				$(document).ready(function() {
+				   $('#parentContent').load(newUrl, function(responseTxt, statusTxt, xhr) {
+					   if (statusTxt == "success"){
+							// reset unsuccessful counter
+						   timesNotResponding = 0;
+						   initialise();
+					   } else {
+						   timesNotResponding++;
+						   // 3 tries and then you're out - refresh entire page
+						   if (timesNotResponding > 2){
+						   } else {
+							   nextPage('xhibit_content.php');
+						   }
+					   }
+				   });
+				});
+			}
+		</script>
+		
+		<!-- ATTACH STYLESHEETS -->
+		<link rel="stylesheet" type="text/css" href="css/new/notifications.css">
+		<link rel="stylesheet" type="text/css" href="css/new/general.css">
+		<link rel="stylesheet" type="text/css" href="css/new/table.css">
+	</head>
+	<body>
+		<!-- POWERSAVING WINDOW -->
+		<div id="brightnessWindow">
+			<div id="powerSavingMessage"></div>
+		</div>
+		
+		<!-- NOTIFICATION BAR AT BOTTOM-->
+		<div class="notificationBar" id="notificationBar">
+			<marquee>
+				<div id="notificationContents"></div>
+			</marquee>
+		</div>
+		
+		<!-- TIME -->
+		<div class="timeDisplay" id="timeDisplay"><span class="timeText" id="time"></span></div>
+		
+		<!-- PAGE X OF Y -->
+		<div class="pageNumberDisplay" id="pageNumberDisplay"><span id="pageInfo" class="pageNumberText">1 of 1</span></div>
+
+		<!-- PARENT HOLDER TO CONTAIN "xhibit_content" -->
+		<div id="parentContent"></div>
+		
+		<!-- ATTACHING SCRIPTS -->
+		<script type="text/javascript" src="display_documentNEW.js"></script>
+		<script type="text/javascript" src="onscreen-clock.js"></script>
+		<script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+		
+		<!-- LOAD FIRST PAGE-->
+		<script>
+			nextPage('xhibit_content.php');
+		</script>
+	</body>
+</html>
+
