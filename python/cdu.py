@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 """Model Court HTML-shell/AJAX CDU contract, on Python 3.4 CGI."""
+import configparser
 import io
 import os
+import re
 import string
 import subprocess
+import sys
 import urllib.parse
 import uuid
 import xml.etree.ElementTree as ET
 from xml.parsers import expat
-from http_support import Request, Response, atomic_write, command, fetch, log, read_ini
+from http_support import Request, Response, atomic_write, command, fetch, log
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VERSION = '1.0.0'
@@ -16,6 +19,17 @@ FULL = {'Daily List': 'daily-list', 'Court Detail': 'court-room-detail',
         'All Case Status': 'all-case-status', 'Summary by Name': 'summary-by-name',
         'Court List': 'court-room-list', 'All Court Status': 'all-court-status',
         'Jury Current Status': 'jury-current-status', 'No Info': 'no-info'}
+# The verified stylesheets copy /COURT/CDU/NOTICE into a single-quoted JavaScript
+# string inside <script>, which HTML output does not escape. Escape only what would
+# end or alter that string; notices without these characters keep identical bytes.
+SCRIPT_ESCAPES = {'\\': '\\\\', "'": "\\'", '\n': '\\n', '\r': '\\r',
+                  '\u2028': '\\u2028', '\u2029': '\\u2029', '<': '\\x3c'}
+START_TAG = re.compile(b'<[^>"\']*(?:(?:"[^"]*"|\'[^\']*\')[^>"\']*)*>')
+# Server-set CGI variables only. Client headers (HTTP_*, CONTENT_TYPE) and request
+# data never reach the MAC command shell, sudo or xsltproc; mod_php exec() did not
+# pass them either.
+SUBPROCESS_ENVIRONMENT = ('PATH', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TZ', 'LD_LIBRARY_PATH',
+                          'XHIBIT_CDU_CONFIG')
 
 
 class DisplayError(Exception):
@@ -41,6 +55,40 @@ def parse_xml(data):
 def node_text(root, path):
     nodes = root.findall(path)
     return (nodes[0].text or '') if len(nodes) == 1 else ''
+
+
+def script_safe_notice(data):
+    """Rewrite only /COURT/CDU/NOTICE content that would break the stylesheets' script."""
+    parser = expat.ParserCreate()
+    path, notices = [], []
+
+    def start(name, attributes):
+        path.append(name)
+        if path == ['COURT', 'CDU', 'NOTICE']:
+            notices.append([parser.CurrentByteIndex, None, []])
+
+    def end(name):
+        if path == ['COURT', 'CDU', 'NOTICE']:
+            notices[-1][1] = parser.CurrentByteIndex
+        path.pop()
+
+    def text(value):
+        if path[:3] == ['COURT', 'CDU', 'NOTICE']:
+            notices[-1][2].append(value)
+
+    parser.StartElementHandler = start
+    parser.EndElementHandler = end
+    parser.CharacterDataHandler = text
+    parser.Parse(data, True)
+    for begin, finish, parts in reversed(notices):
+        value = ''.join(parts)  # the string value xsl:value-of copies
+        escaped = ''.join(SCRIPT_ESCAPES.get(char, char) for char in value)
+        tag = START_TAG.match(data, begin)
+        if escaped == value or tag is None or data[finish:finish + 2] != b'</':
+            continue
+        escaped = escaped.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        data = data[:tag.end()] + escaped.encode('ascii', 'xmlcharrefreplace') + data[finish:]
+    return data
 
 
 def transform(data, stylesheet, settings, root=ROOT):
@@ -76,6 +124,33 @@ def mac_address(query, settings, runner=command):
     return value or '00:00:00:00:00:00'
 
 
+def ini_value(value):
+    # As parse_ini_file: a quoted value ends at its quote, and an unquoted ' ;' starts
+    # a comment. A ';' without leading whitespace stays, e.g. text/html; charset=UTF-8.
+    value = value.strip()
+    if value[:1] in ('"', "'"):
+        end = value.find(value[0], 1)
+        if end > 0 and value[end + 1:].lstrip()[:1] in ('', ';'):
+            return value[1:end]
+        return value
+    return re.split(r'(?:^|\s);', value, 1)[0].rstrip()
+
+
+def read_settings(path):
+    # The PHP-era cdu.ini: like parse_ini_file, a repeated key or section is not an error
+    # and the later value wins.
+    parser = configparser.RawConfigParser(strict=False)
+    parser.optionxform = str
+    with io.open(path, encoding='utf-8-sig') as stream:
+        source = stream.read()
+    parser.read_string('[XHIBIT_DEFAULT]\n' + source)
+    values = {}
+    for section in parser.sections():
+        for key, value in parser.items(section):
+            values[key] = ini_value(value)
+    return values
+
+
 def touch(path):
     try:
         with open(path, 'ab'):
@@ -109,9 +184,17 @@ def screenshot(settings, runner=command):
 
 
 def handle(request, settings=None, fetcher=fetch, transformer=transform, root=ROOT):
-    settings = settings if settings is not None else read_ini(os.environ.get('XHIBIT_CDU_CONFIG', os.path.join(root, 'cdu.ini')))
-    content_type = settings.get('defaultContentType', 'text/html; charset=UTF-8')
     route = request.route or 'index.php'
+    if settings is None:
+        try:
+            settings = read_settings(os.environ.get('XHIBIT_CDU_CONFIG', os.path.join(root, 'cdu.ini')))
+        except (OSError, ValueError, configparser.Error) as exc:
+            # The verified index.php is a static page and loads without configuration.
+            if route != 'index.php':
+                raise
+            log('CDU_CONFIG_FAILURE ' + type(exc).__name__)
+            settings = {}
+    content_type = settings.get('defaultContentType', 'text/html; charset=UTF-8')
     if route == 'screenshot.php':
         return screenshot(settings)
     if route == 'index.php':
@@ -149,7 +232,8 @@ def handle(request, settings=None, fetcher=fetch, transformer=transform, root=RO
             raise DisplayError('UNEXPECTED_PAGE_TYPE')
         # The original validates XSL but always uses xsl/new/, even for "old".
         log('SUCCESS: using stylesheet - ' + name + '.xsl', 'index.php', 6)
-        return Response(transformer(data, 'new/' + name + '.xsl', settings, root), content_type=content_type)
+        return Response(transformer(script_safe_notice(data), 'new/' + name + '.xsl', settings, root),
+                        content_type=content_type)
     except DisplayError as exc:
         log(exc.reason + ' - ' + url, 'index.php')
         # Uncaught SimpleXMLElement errors produce an empty HTTP 500 in PHP.
@@ -158,9 +242,26 @@ def handle(request, settings=None, fetcher=fetch, transformer=transform, root=RO
         return Response(holding_page(mac, exc.reason, root), content_type=content_type)
 
 
+def discard_body(stream=None):
+    # No CDU route uses a request body: drain it in bounded chunks instead of
+    # buffering it in memory, so a large POST cannot exhaust the CDU.
+    stream = stream or sys.stdin.buffer
+    remaining = max(0, int(os.environ.get('CONTENT_LENGTH') or '0'))
+    while remaining > 0:
+        chunk = stream.read(min(remaining, 65536))
+        if not chunk:
+            break
+        remaining -= len(chunk)
+
+
 def main():
     try:
-        handle(Request.from_cgi()).emit()
+        request = Request(os.environ)
+        discard_body()
+        for key in list(os.environ):
+            if key not in SUBPROCESS_ENVIRONMENT:
+                del os.environ[key]
+        handle(request).emit()
     except Exception as exc:
         log('CDU_FAILURE ' + type(exc).__name__)
         Response(status=500).emit()
