@@ -52,6 +52,12 @@ function ScrollingDocument_reset() {
 // Calculates where to scroll to for each page and the number of pages
 function ScrollingDocument_calculatePages() {
     var allRows = document.getElementById("resultTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+    // An empty table (e.g. Court Detail with no notices) is still one page: it shows
+    // "1 of 1" and holds for the single-page interval like any other one-page display.
+    if (allRows.length == 0) {
+        this.pages.push(new Page(0, 0, 0));
+        return;
+    }
     //log(allRows.length + " rows have been found");
     var border = 2;
     // Calculating the number of pixels that the table can take up.
@@ -144,7 +150,12 @@ function insertDivs() {
 
 // Aligns table headers from header table and result table
 function alignHeaders() {
-    var resultColumns = resultTable.tBodies[0].rows[0].cells;
+    // A table with no body rows (e.g. Court Detail with no notices) aligns to its own
+    // header row. Reading rows[0].cells threw, stopping initialise() before rotation
+    // was scheduled.
+    var body = resultTable.tBodies[0];
+    var firstRow = (body && body.rows.length) ? body.rows[0] : resultTable.rows[0];
+    var resultColumns = firstRow ? firstRow.cells : [];
     // Clone the result table (not the nested rows)
     var headerTable = resultTable.cloneNode(false);
     headerTable.id = "headerTable"; // give it an id

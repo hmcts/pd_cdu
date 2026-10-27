@@ -5,13 +5,15 @@
 		<!-- FUNCTION TO LOAD CONTENT INTO PARENTCONTENT DIV -->
 		<script>
 			var timesNotResponding = 0;
+			var pagesRequested = 0;
 			function nextPage(newUrl){
+				pagesRequested++;
 				$(document).ready(function() {
 				   $('#parentContent').load(newUrl, function(responseTxt, statusTxt, xhr) {
 					   if (statusTxt == "success"){
 							// reset unsuccessful counter
 						   timesNotResponding = 0;
-						   initialise();
+						   startPage();
 					   } else {
 						   timesNotResponding++;
 						   // 3 tries and then you're out - refresh entire page
@@ -22,6 +24,27 @@
 					   }
 				   });
 				});
+			}
+			// A script error in initialise() must not stop the display refreshing: the clock
+			// keeps running, so a frozen screen looks live while showing stale hearings.
+			function startPage(){
+				try {
+					initialise();
+				} catch (exc) {
+					clearInterval(loopInterval);
+					var requested = pagesRequested;
+					var retryUrl = (typeof thisUrl === 'undefined') ? 'xhibit_content.php' : thisUrl;
+					var refresh = (typeof XML_REFRESH === 'number') ? XML_REFRESH : 5;
+					// Wait longer than any page's own retry (No Info waits 2 x refresh), and only
+					// reload if nothing has requested a page since the error.
+					setTimeout(function(){
+						if (pagesRequested == requested) {
+							nextPage(retryUrl);
+						}
+					}, (refresh * 2 + 10) * 1000);
+					// Re-raise so the error is still reported in the console.
+					setTimeout(function(){ throw exc; }, 0);
+				}
 			}
 		</script>
 		
