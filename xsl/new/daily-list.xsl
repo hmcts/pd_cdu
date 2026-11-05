@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-	<!-- Code used to process the removal of a word from within a string -->
+	<!-- FUNCTION - REMOVE PHRASE FROM STRING-->
 	<xsl:template name="string-replace-all">
 		<xsl:param name="source" />
 		<xsl:param name="replace" />
@@ -21,70 +21,41 @@
 		</xsl:choose>
 	</xsl:template>
 
-	<!-- Main body of the page -->
     <xsl:template match="/">
         <html>
             <head>
-                <!-- Attaching Javascript -->
-                <xsl:if test="/COURT/PAGE/CURRENT-PAGE-INDEX">
-                    <meta http-equiv="refresh">
-                        <xsl:attribute name="content">
-                            <xsl:value-of select="/COURT/CDU/REFRESH"/>
-                            <xsl:text>, index.php?macAddr=</xsl:text>
-                            <xsl:value-of select="/COURT/CDU/MAC-ADDR"/>
-                            <xsl:text>&amp;currentPageIndex=</xsl:text>
-                            <xsl:value-of select="/COURT/PAGE/CURRENT-PAGE-INDEX"/>
-                        </xsl:attribute>
-                    </meta>
-                </xsl:if>
-				
-				<!-- Setting page rotation speed to value in XML -->
-				<meta http-equiv="refresh" content="7200; index.php"></meta>
 				<script>
-					var nextPageDelay = <xsl:value-of select="/COURT/CDU/REFRESH" />
-				</script>
-				
-                <!-- Attaching Javascript -->
-                <script type="text/javascript" src="display_documentNEW.js"></script>
-				
-                <!-- Attaching Stylesheets -->
-                <link rel="stylesheet" type="text/css">
-					<xsl:attribute name="href">
-						<xsl:text>css/new/general.css</xsl:text>
-					</xsl:attribute>
-				</link>
-				<link rel="stylesheet" type="text/css">
-					<xsl:attribute name="href">
-						<xsl:text>css/new/table.css</xsl:text>
-					</xsl:attribute>
-				</link>
+					var thisUrl = '<xsl:text>xhibit_content.php?macAddr=</xsl:text><xsl:value-of select="/COURT/CDU/MAC-ADDR"/><xsl:text>&amp;currentPageIndex=</xsl:text><xsl:value-of select="/COURT/PAGE/CURRENT-PAGE-INDEX"/>';
+					var XML_REFRESH = <xsl:value-of select="/COURT/CDU/REFRESH"/>;
+					var NOTIFICATION = '<xsl:value-of select="/COURT/CDU/NOTICE"/>';
+					var POWERSAVING = '<xsl:value-of select="/COURT/CDU/POWER-SAVING"/>';
+					var PAGELANGUAGE = '<xsl:value-of select="/COURT/PAGE/LANGUAGE"/>';
+					var NOINFO = "false";
+				</script>			
             </head>
             <body>
-				<!-- If visible, blacks out screen and shows power saving message -->
-				<div id="brightnessWindow">
-				<div id="powerSavingMessage">
+                <!-- ENGLISH / WELSH PAGE X OF Y TRANSLATIONS -->
+                <form name="displayform">
 					<xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
-                        <span>- Power Saving Mode Enabled -</span>
-                    </xsl:if>
-                    <xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
-                        <span>- Power Arbed Modd Galluogwyd -</span>
-                    </xsl:if>
-				</div>
-				</div>
-				<xsl:if test="COURT/CDU/POWER-SAVING = 'ENABLED'">
-					<script>
-						document.getElementById("brightnessWindow").style.visibility = "visible";
-					</script>
-				</xsl:if>
-					
-				<!-- Div Containing Notification Bar -->				
-				<div class="notificationBar" id="notificationBar">
-					<marquee>
-						<div id="notificationContents">
-							<xsl:value-of select="/COURT/CDU/NOTICE" />
-						</div>
-					</marquee>
-				</div>
+						<input type="hidden" name="ofTitleText" value="of" />
+					</xsl:if>
+					<xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
+						<input type="hidden" name="ofTitleText" value="o" />
+					</xsl:if>
+					<xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
+						<input type="hidden" name="pageTitleText" value="Page" />
+					</xsl:if>
+					<xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
+						<input type="hidden" name="pageTitleText" value="Dudalen" />
+					</xsl:if>
+					<input type="hidden" name="macAddress" value="Page">
+						<xsl:attribute name="value">
+							<xsl:value-of select="/COURT/CDU/MAC-ADDR"/>
+						</xsl:attribute>
+                    </input>
+                </form>
+				
+				<!-- REPORTING RESTRICTIONS -->		
                 <div class="reportingRestrictions">
                     <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
                         * Reporting Restrictions Apply; Please see court manager for more details 
@@ -94,37 +65,7 @@
                     </xsl:if>
                 </div>
 				
-                <!-- Div Containing Time Display Within Notification Bar -->
-                <div class="timeDisplay">
-                    <span class="timeText"  id="time"></span>
-                </div>
-				
-                <!-- Div Containing Page Number Within Notifivation Bar -->
-                <div class="pageNumberDisplay">
-					<span id="pageInfo" class="pageNumberText">1 of 1</span>
-				</div>
-				
-                <!-- Contains Data for Page x of y display -->
-                <form name="displayform">
-                    <input type="hidden" name="listTitleText" value="List" />
-						<xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
-							<input type="hidden" name="ofTitleText" value="of" />
-						</xsl:if>
-						<xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
-							<input type="hidden" name="ofTitleText" value="o" />
-						</xsl:if>                    <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
-							<input type="hidden" name="pageTitleText" value="Page" />
-						</xsl:if>
-						<xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
-							<input type="hidden" name="pageTitleText" value="Dudalen" />
-						</xsl:if>
-						<input type="hidden" name="macAddress" value="Page">
-						<xsl:attribute name="value">
-							<xsl:value-of select="/COURT/CDU/MAC-ADDR"/>
-						</xsl:attribute>
-                    </input>
-                </form>
-                <!-- Layout Determination for Page -->
+                <!-- LOGO AND SITE TITLE -->
                 <div id="heading" class="headerContainer">
                     <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
                         <span class="headerLogo">
@@ -146,37 +87,148 @@
                     </span>
                 </div>
 				
+				<!-- TITLE, LAST UPDATED AND DEBUG INFORMATION -->
                 <div id="pageTitle" class="title">
 					<span>
 						<xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
-							Daily List (
+							Daily List
 						</xsl:if>
 						<xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
-							Rhestr Ddyddiol (
+							Rhestr Ddyddiol
 						</xsl:if>
-						<xsl:value-of select="/COURT/CDU/LOCATION"/>
-						)
+						<xsl:text> </xsl:text>
+						<xsl:text>(</xsl:text>
+							<xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
+								<xsl:value-of select="/COURT/CDU/LOCATION"/>
+							</xsl:if>
+							<xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
+								<xsl:if test="COURT/CDU/LOCATION = 'Reception'">
+									<xsl:text>Derbynfa</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Jury Lounge'">
+									<xsl:text>Lofa’r Rheithgor</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Robing Room'">
+									<xsl:text>Ystafell Ymwisgo</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Canteen'">
+									<xsl:text>Cantîn</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Waiting Area'">
+									<xsl:text>Ardal aros</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Lobby'">
+									<xsl:text>Cyntedd</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Witness Services'">
+									<xsl:text>Gwasanaethau i Dystion</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Magistrates Court'">
+									<xsl:text>Llys ynadon</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Press Room'">
+									<xsl:text>Ystafell y Wasg</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 1'">
+									<xsl:text>Llys 1</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 2'">
+									<xsl:text>Llys 2</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 3'">
+									<xsl:text>Llys 3</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 4'">
+									<xsl:text>Llys 4</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 5'">
+									<xsl:text>Llys 5</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 6'">
+									<xsl:text>Llys 6</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 7'">
+									<xsl:text>Llys 7</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 8'">
+									<xsl:text>Llys 8</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 9'">
+									<xsl:text>Llys 9</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 10'">
+									<xsl:text>Llys 10</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 11'">
+									<xsl:text>Llys 11</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 12'">
+									<xsl:text>Llys 12</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 13'">
+									<xsl:text>Llys 13</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 14'">
+									<xsl:text>Llys 14</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 15'">
+									<xsl:text>Llys 15</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 16'">
+									<xsl:text>Llys 16</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 17'">
+									<xsl:text>Llys 17</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 18'">
+									<xsl:text>Llys 18</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 19'">
+									<xsl:text>Llys 19</xsl:text>
+								</xsl:if>
+								<xsl:if test="COURT/CDU/LOCATION = 'Court 20'">
+									<xsl:text>Llys 20</xsl:text>
+								</xsl:if>
+							</xsl:if>
+						<xsl:text>)</xsl:text>
 					</span>
-					<div class="lastUpdated bigtext-exempt"><span id="lastUpdated">
-                        <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
-                            Last Updated: 
-                        </xsl:if>
-                        <xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
-                            Diweddarwyd Ddiwethaf:
-                        </xsl:if>
-
-						<xsl:value-of select="/COURT/PAGE/LAST-UPDATED" /></span> | 
-                        
-                        <xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
-                            Version: 
-                        </xsl:if>
-                        <xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
-                            Fersiwn:
-                        </xsl:if>
-
-						<xsl:value-of select="/COURT/CLIENT/VERSION" /> / <xsl:value-of select="/COURT/CDU/VERSION" />
+					
+					<div class="lastUpdated">
+						<span id="lastUpdated">
+							<xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
+								Last Updated:
+							</xsl:if>
+							<xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
+								Diweddarwyd Ddiwethaf:
+							</xsl:if>
+							<xsl:value-of select="/COURT/PAGE/LAST-UPDATED" />
+						</span>
+						<span>
+							<xsl:text> | </xsl:text>
+						</span> 
+                        <span>
+							<xsl:if test="COURT/PAGE/LANGUAGE = 'English'">
+								Version: 
+							</xsl:if>
+							<xsl:if test="COURT/PAGE/LANGUAGE = 'Welsh'">
+								Fersiwn:
+							</xsl:if>
+							<xsl:text>CDU_</xsl:text>
+							<xsl:value-of select="/COURT/CLIENT/VERSION" />
+							<xsl:text> / </xsl:text>
+							<xsl:text>PXY_</xsl:text>
+							<xsl:value-of select="/COURT/CDU/VERSION" />
+						</span>
+						<span>
+							<xsl:text> | </xsl:text>
+						</span>
+						<span>
+							<xsl:value-of select="/COURT/CDU/TITLE"/>
+						</span> 
 					</div>
                 </div>
+				
+				<!-- BODY -->
                 <div id="bodyArea" class="body-area">
                     <table id="resultTable" class="results" border="0" cellpadding="3" cellspacing="0">
                         <thead id="tableHeader">
@@ -274,17 +326,6 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- This div stores cached data for the page. -->
-                <div style="visibility: hidden" id="hiddenContainer"></div>
-				
-				<script type="text/javascript" src="jquery.min.js"></script>
-				<script type="text/javascript" src="bigtext.js"></script>
-				
-				<script>
-					$('#pageTitle').bigtext({
-						maxfontsize: 50 // default is 528 (in px)
-					});
-				</script>
             </body>
         </html>
     </xsl:template>

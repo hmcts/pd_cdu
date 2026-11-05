@@ -1,0 +1,10 @@
+# Verified distribution assets must remain byte-identical, including CRLF.
+/css/** -text -whitespace
+/images/** -text
+/xsl/** -text -whitespace
+/display_documentNEW.js -text -whitespace
+/jquery-3.1.1.min.js -text -whitespace
+/onscreen-clock.js -text -whitespace
+/localError.html -text -whitespace
+/python/templates/index.html -text -whitespace
+/python/templates/no-information.html -text -whitespace

@@ -1,0 +1,21 @@
+XHIBIT Model Court CDU - Python CGI
+
+Only index.php (also /), xhibit_content.php and screenshot.php are dynamic aliases.
+There are no physical PHP files. The HTML shell/AJAX flow, clock, JavaScript,
+CSS, images, localError.html and nine XSLs use the verified Model Court baseline.
+The superseded partial/refresh/status endpoints and older assets are removed.
+
+Keep pd_localproxy alongside this checkout. See its migration/README.md for
+packaging (including the Python-only cdu.tar), tests, prerequisites and rollback.
+MODEL_COURT_PROVENANCE.json records source hashes, not fleet certification.
+display_documentNEW.js and the shell (python/templates/index.html) carry approved
+fixes listed under its approved_local_changes: an empty table (e.g. Court Detail
+with no notices) no longer stops the display refreshing, and a script error in a
+page retries the next one instead of freezing.
+Use a reviewed external config based on config/cdu.ini.example, never credentials
+in a release archive. No runtime upgrade or new production dependency is included.
+defaultMacAddress is ignored, as in the verified Model Court flow: if macAddressCmd
+prints nothing, the CDU requests 00:00:00:00:00:00 and shows No Information, so
+confirm the command's output on each target. Screenshots use captureHelper through
+sudo; screenshotScript is not read.
+Physical CDU/updater/SELinux checks remain deployment gates.
